@@ -1,0 +1,75 @@
+/* Qwen3-TTS ONNX — 简单管理界面样式 */
+:root {
+  --bg: #f6f7f9;
+  --card: #ffffff;
+  --ink: #1f2328;
+  --muted: #6b7280;
+  --accent: #2563eb;
+  --border: #e5e7eb;
+  --ok: #16a34a;
+  --warn: #d97706;
+  --err: #dc2626;
+}
+* { box-sizing: border-box; }
+body { font-family: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+       background: var(--bg); color: var(--ink); margin: 0; }
+header { background: #fff; border-bottom: 1px solid var(--border); padding: 12px 20px;
+         display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 20; }
+.brand { font-weight: 700; }
+nav { display: flex; gap: 4px; }
+.tab-btn { border: 0; background: transparent; padding: 8px 14px; border-radius: 8px;
+           cursor: pointer; font-size: 14px; }
+.tab-btn.active { background: var(--accent); color: #fff; }
+.logout { color: var(--muted); cursor: pointer; font-size: 13px; }
+main { max-width: 1080px; margin: 20px auto; }
+h3 { margin: 8px 0; }
+.tab { display: none; }
+.tab.active { display: block; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+        padding: 16px 20px; margin-bottom: 16px; }
+.row { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
+.row label { width: 100px; color: var(--muted); font-size: 13px; }
+select, input[type=text], input[type=password], textarea {
+  border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; font-size: 14px;
+  min-width: 220px; background: #fff; }
+textarea { width: 100%; resize: vertical; font-family: inherit; }
+.actions { display: flex; gap: 10px; align-items: center; }
+button { border: 1px solid var(--border); background: #fff; border-radius: 8px;
+         padding: 8px 14px; cursor: pointer; font-size: 14px; }
+button.primary { background: var(--accent); color: #fff; border: 0; }
+button.small { padding: 4px 10px; font-size: 12px; }
+button:hover { filter: brightness(0.97); }
+.hint { color: var(--muted); font-size: 12px; }
+.hint.small { font-size: 11px; }
+.status { color: var(--muted); font-size: 13px; margin-left: 8px; }
+.meta { color: var(--muted); font-size: 12px; }
+.pre { white-space: pre-wrap; font-family: ui-monospace, Consolas, monospace; font-size: 12px;
+       background: #f3f4f6; border-radius: 8px; padding: 12px; }
+audio { width: 100%; margin-top: 8px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { border-bottom: 1px solid var(--border); padding: 8px 10px; text-align: left; }
+th { background: #f3f4f6; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; }
+.badge.clone { background: #eef2ff; color: #2563eb; }
+.badge.design { background: #f0fdf4; color: #16a34a; }
+.badge.pending { background: #f3f4f6; color: #6b7280; }
+.badge.running { background: #eff6ff; color: #2563eb; }
+.badge.completed { background: #dcfce7; color: #16a34a; }
+.badge.failed, .badge.error { background: #fee2e2; color: #dc2626; }
+.badge.cancelled, .badge.unloaded { background: #f3f4f6; color: #9ca3af; }
+.badge.loaded { background: #dcfce7; color: #16a34a; }
+.badge.loading, .badge.unloading { background: #eff6ff; color: #2563eb; }
+.err { color: var(--err); font-size: 13px; margin: 6px 0; }
+progress { width: 120px; height: 8px; }
+.modal { position: fixed; inset: 0; background: rgba(0,0,0,.35); display: flex;
+         align-items: center; justify-content: center; z-index: 50; }
+.modal-card { background: #fff; border-radius: 14px; padding: 20px 28px; width: 520px; }
+.hidden { display: none; }
+#login-overlay { position: fixed; inset: 0; background: #eef1f6; display: flex;
+                 align-items: center; justify-content: center; z-index: 100; }
+.login-card { background: #fff; border-radius: 16px; padding: 36px 44px; width: 420px;
+              box-shadow: 0 10px 24px rgba(0,0,0,.12); text-align: center; }
+.login-card h2 { margin-top: 0; }
+.login-card .sub { color: var(--muted); font-size: 14px; }
+.login-card input { width: 100%; margin: 12px 0; }
+#app.hidden, .hidden { display: none !important; }

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Qwen3-TTS ONNX · 语音合成</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div id="login-overlay" class="hidden">
+  <div class="login-card">
+    <h2>Qwen3-TTS ONNX</h2>
+    <p class="sub">请输入访问令牌（若服务已配置鉴权）</p>
+    <input id="login-token" type="password" placeholder="API token">
+    <button id="login-btn">进入</button>
+    <div id="login-err" class="err hidden"></div>
+  </div>
+</div>
+
+<div id="app" class="hidden">
+<header>
+  <span class="brand">Qwen3-TTS ONNX</span>
+  <nav>
+    <button data-tab="tabs/synth" class="tab-btn active">🎙️ 语音合成</button>
+    <button data-tab="tabs/voices" class="tab-btn">🗂️ 语音库</button>
+    <button data-tab="tabs/tasks" class="tab-btn">🤖 任务列表</button>
+    <button data-tab="tabs/models" class="tab-btn">⚙️ 模型/服务</button>
+  </nav>
+  <span id="logout" class="logout hidden" title="清除令牌">退出</span>
+</header>
+
+<main>
+  <!-- 合成 -->
+  <section id="tabs/synth" class="tab active">
+    <h3>语音合成</h3>
+    <div class="card">
+      <div class="row">
+        <label>模型</label>
+        <select id="syn-model">
+          <option value="qwen3-tts-0.6b-base">0.6B Base · 语音克隆</option>
+          <option value="qwen3-tts-1.7b-voicedesign">1.7B VoiceDesign · 声音设计</option>
+        </select>
+      </div>
+      <div class="row">
+        <label>语音来源</label>
+        <select id="syn-voice-src">
+          <option value="registered">已注册语音</option>
+          <option value="temp">临时参数（不入库）</option>
+        </select>
+      </div>
+      <div id="syn-registered" class="block">
+        <div class="row">
+          <label>选择语音</label>
+          <select id="syn-voice"></select>
+          <button id="syn-listen" class="small" title="试听">▶ 试听</button>
+        </div>
+      </div>
+      <div id="syn-temp" class="block hidden">
+        <div class="row">
+          <label>参考音频</label>
+          <input type="file" id="syn-ref-audio" accept=".wav,.mp3">
+          <span class="hint">wav/mp3（仅克隆模型）</span>
+        </div>
+        <div class="row">
+          <label>参考文本</label>
+          <textarea id="syn-ref-text" rows="1" placeholder="参考音频的转写文本（克隆时必填）"></textarea>
+        </div>
+        <div class="row">
+          <label>设计指令</label>
+          <textarea id="syn-instruct" rows="1" placeholder='如："用温柔缓慢的语气说中文"（设计模型）'></textarea>
+        </div>
+      </div>
+      <div class="row">
+        <label>语言</label>
+        <select id="syn-language">
+          <option>Auto</option><option>Chinese</option><option>English</option>
+          <option>Japanese</option><option>Korean</option><option>German</option>
+          <option>French</option><option>Russian</option><option>Portuguese</option>
+          <option>Spanish</option><option>Italian</option>
+        </select>
+      </div>
+      <div class="row">
+        <label>合成文本</label>
+        <textarea id="syn-text" rows="3" placeholder="请输入要合成的文本…"></textarea>
+      </div>
+      <div class="row">
+        <label>输出格式</label>
+        <select id="syn-format"><option value="wav">wav</option><option value="mp3">mp3</option></select>
+        <span class="hint small">speed 参数预留，暂不实现变速</span>
+      </div>
+      <div class="row actions">
+        <button id="syn-go" class="primary">▶️ 同步合成</button>
+        <button id="syn-async">⏱️ 异步提交</button>
+        <span id="syn-status" class="status"></span>
+      </div>
+    </div>
+    <div id="syn-result" class="card hidden">
+      <h4>结果 <a id="syn-download" class="small">下载</a></h4>
+      <audio id="syn-audio" controls></audio>
+      <div id="syn-meta" class="meta"></div>
+    </div>
+  </section>
+
+  <!-- 语音库 -->
+  <section id="tabs/voices" class="tab">
+    <h3>语音库</h3>
+    <div class="toolbar">
+      <button id="voices-refresh">刷新</button>
+      <button id="voices-add-clone">+ 注册克隆语音</button>
+      <button id="voices-add-design">+ 注册设计语音</button>
+    </div>
+    <div id="voices-modal" class="modal hidden">
+      <div class="modal-card">
+        <h4 id="modal-title">注册语音</h4>
+        <div class="row"><label>voice_id</label><input id="modal-vid" placeholder="如 my-voice-1"></div>
+        <div class="row"><label>语言</label>
+          <select id="modal-language">
+            <option>Chinese</option><option>English</option><option>Japanese</option>
+            <option>Korean</option><option>German</option><option>French</option>
+            <option>Russian</option><option>Portuguese</option><option>Spanish</option>
+            <option>Italian</option>
+          </select></div>
+        <div id="modal-clone" class="block">
+          <div class="row"><label>参考音频</label><input type="file" id="modal-ref-audio" accept=".wav,.mp3"></div>
+          <div class="row"><label>参考文本</label><textarea id="modal-ref-text" rows="2"
+            placeholder="请准确转写参考音频内容（克隆质量依赖于此）"></textarea></div>
+        </div>
+        <div id="modal-design" class="block hidden">
+          <div class="row"><label>设计指令</label><textarea id="modal-instruct" rows="2"
+            placeholder='如："用愤怒的语气说"（声音设计指令）'></textarea></div>
+        </div>
+        <div class="row"><label>备注</label><input id="modal-desc" placeholder="可选描述"></div>
+        <div class="row actions">
+          <button id="modal-save" class="primary">保存</button>
+          <button id="modal-cancel">取消</button>
+        </div>
+        <div id="modal-err" class="err hidden"></div>
+      </div>
+    </div>
+    <table id="voices-table">
+      <thead><tr><th>voice_id</th><th>类型</th><th>语言</th><th>指令/参考</th><th>更新时间</th><th>操作</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <!-- 任务列表 -->
+  <section id="tabs/tasks" class="tab">
+    <h3>任务列表</h3>
+    <div class="toolbar">
+      <button id="tasks-refresh">刷新</button>
+      <select id="tasks-filter">
+        <option value="">全部</option><option value="pending">pending</option>
+        <option value="running">running</option><option value="completed">completed</option>
+        <option value="failed">failed</option><option value="cancelled">cancelled</option>
+      </select>
+    </div>
+    <table id="tasks-table">
+      <thead><tr><th>task_id</th><th>模型</th><th>状态</th><th>进度</th><th>文本</th><th>操作</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <!-- 模型/服务 -->
+  <section id="tabs/models" class="tab">
+    <h3>模型/服务</h3>
+    <div id="models-cards"></div>
+    <h4>服务信息</h4>
+    <pre id="server-info" class="meta pre"></pre>
+    <h4>配置</h4>
+    <details><summary>查看配置（只读）</summary><pre id="cfg-view"></pre></details>
+  </section>
+</main>
+</div>
+<script src="/static/app.js"></script>
+</body>
+</html>
