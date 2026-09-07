@@ -59,3 +59,4 @@ data/
 /test_out_*.wav
 /e2e_*.log
 /config.yaml
+ffmpeg/
