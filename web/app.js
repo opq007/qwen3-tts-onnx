@@ -281,8 +281,6 @@ document.addEventListener("change", e => {
 });
 
 /* ── 启动 ─────────────────────────────────────────────── */
-$(document).readyState;
 checkAuth();
-setInterval(() => { if (!document.hidden && $("#tabs/tasks").classList.contains("active")) loadTasks(); }, 3000);
-window.URL = window.URL || window.URL ?? {}; // no-op guard
+setInterval(() => { if (!document.hidden && document.getElementById("tabs/tasks").classList.contains("active")) loadTasks(); }, 3000);
 window.addEventListener("beforeunload", () => { /* keep token */ });
